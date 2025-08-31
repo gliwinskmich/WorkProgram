@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalkulator Gminy</title>
+    <style>
+      :root {
+        --bg-color: #333;
+        --text-color: #e6e6e6;
+        --input-bg: #444;
+        --input-border: #444;
+        --button-bg: #2276f5;
+        --button-hover: #0058b6;
+        --button-active: #003b79;
+        --result-bg: #444;
+        --error-color: #ff6b6b;
+        --input-error: #ff3d3d;
+        --label-color: #e6e6e6;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #555;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .input-group label {
+        width: 180px;
+        color: var(--label-color);
+        margin-right: 10px;
+      }
+
+      .input-group input {
+        flex: 1;
+        padding: 10px;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0 20px 190px;
+      }
+
+      button {
+        padding: 10px 5px;
+        background-color: var(--button-bg);
+        color: var(--text-color);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .switches {
+        text-align: center;
+        padding: 30px 0 20px 0;
+      }
+
+      .switch {
+        padding: 10px 15px;
+        background-color: #666;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        width: 46.7%;
+        margin: 0 3px;
+      }
+
+      .action-buttons button {
+        flex: 1;
+        max-width: 200px;
+      }
+
+      button:hover {
+        background-color: var(--button-hover);
+      }
+
+      button:active {
+        background-color: var(--button-active);
+      }
+
+      .switch:hover {
+        background-color: #444;
+      }
+
+      .switch:active {
+        background-color: #333;
+      }
+
+      .result {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: var(--result-bg);
+        border-radius: 4px;
+        display: none;
+        text-align: center;
+      }
+
+      .error {
+        color: var(--error-color);
+        font-weight: bold;
+      }
+
+      .copy-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      .copy-buttons button {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 120px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .input-error {
+        border-color: var(--input-error) !important;
+      }
+
+      #check-box {
+        margin-bottom: 25px;
+        margin-left: 190px;
+        color: #aaa;
+      }
+
+      .radio-group {
+        margin: 10px 0 20px 190px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .radio-option {
+        display: flex;
+        align-items: center;
+      }
+
+      .radio-option input {
+        margin-right: 8px;
+      }
+
+      .radio-option label {
+        color: var(--label-color);
+      }
+
+      #formType {
+        font-size: 15px;
+      }
+
+      #costsForm,
+      #certificatesForm,
+      #opForm,
+      #opgForm,
+      #opcForm,
+      #changeForm,
+      #bonusForm {
+        text-align: right;
+      }
+
+      /* Dodane style dla sekcji ops */
+      .ops-summary {
+        margin-top: 60px;
+        padding: 15px;
+        background-color: var(--result-bg);
+        border-radius: 4px;
+      }
+
+      .ops-descript {
+        text-align: center;
+        margin-top: 45px;
+        color: #888;
+      }
+
+      .ops-summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .ops-summary-label {
+        margin-left: 10px;
+      }
+
+      .ops-summary-value {
+        margin-right: 10px;
+      }
+
+      .ops-total {
+        margin-top: 20px;
+        margin-bottom: 0px;
+        text-align: center;
+      }
+
+      .ops-text {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .ops-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .ops-buttons button {
+        flex: 1;
+        max-width: 300px;
+      }
+
+      .zamien {
+        font-size: 0px;
+      }
+
+      .zamien::before {
+        content: "Zamień (Enter)";
+        font-size: 14px;
+      }
+
+      /* Nowe style dla kwartalnych sum */
+      .quarterly-sums-container {
+        margin-top: 15px;
+      }
+
+      .quarterly-sum-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-left: 5px;
+        background-color: var(--input-bg);
+        border-radius: 4px;
+      }
+
+      .quarterly-sume-value {
+        margin-left: 5px;
+        flex-grow: 1;
+      }
+
+      .quarterly-copy-btn {
+        background-color: var(--button-bg);
+        color: var(--text-color);
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .quarterly-copy-btn:hover {
+        background-color: var(--button-hover);
+      }
+
+      /* Style dla przycisków sumy całkowitej */
+      .total-sum-buttons {
+        display: none;
+        gap: 10px;
+        margin-top: 15px;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .total-sum-buttons button {
+        flex: 1;
+        padding: 10px;
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .sum-value {
+        margin-top: 10px;
+      }
+
+      .text-value {
+        margin-bottom: 10px;
+      }
+
+      .total-sum-display {
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        margin: 25px 10px 10px 0;
+        background-color: var(--input-bg);
+        border-radius: 4px;
+      }
+
+      .total-sum-text {
+        display: block;
+        margin-top: 5px;
+        color: #ccc;
+      }
+
+      .quarterly-copy-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      #copyToSheetBtn {
+        background-color: #008537;
+      }
+
+      #copyToSheetBtn:hover {
+        background-color: #006b2d;
+      }
+
+      #copyToSheetBtn:active {
+        background-color: #005c26;
+      }
+
+      .quarterly-buttons {
+        display: flex;
+        gap: 5px;
+        margin-left: 10px;
+      }
+
+      .quarterly-label {
+        margin-left: 10%;
+        margin-right: 10%;
+        font-weight: bold;
+        color: #999;
+      }
+
+      .quarterly-copy-btn {
+        background-color: var(--button-bg);
+        color: var(--text-color);
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+
+      .quarterly-delete-btn {
+        background-color: #d32323;
+        color: var(--text-color);
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+
+      .quarterly-copy-btn:hover {
+        background-color: var(--button-hover);
+      }
+
+      .quarterly-delete-btn:hover {
+        background-color: #b81616;
+      }
+
+      .quarterly-delete-btn:active {
+        background-color: #9e0a0a;
+      }
+
+      .quarterly-copy-btn:active {
+        background-color: var(--button-active);
+      }
+
+      .boldtext {
+        font-weight: bold;
+      }
+
+      img {
+        height: 10%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 id="title">Kalkulator Gminy</h1>
+      <h1 id="titlePKI" class="hidden">Kalkulator PKI</h1>
+      <h1 id="titleOP" class="hidden">Kalkulator OP</h1>
+      <h1 id="titleOPG" class="hidden">Kalkulator OPG</h1>
+      <h1 id="titleBonus" class="hidden">Kalkulator Bonusy</h1>
+      <h1 id="change" class="hidden">Słowny zapis kwot</h1>
+
+      <select id="formType">
+        <option value="nic" selected disabled>Wybierz rodzaj kosztów...</option>
+        <optgroup label="PKI - punkt konsultacyjno-informacyjny">
+          <option value="certificates">
+            &nbsp;&nbsp;&nbsp;&nbsp;Dyspozycja - wnioski i zaświadczenia
+          </option>
+          <option value="costs">
+            &nbsp;&nbsp;&nbsp;&nbsp;Dyspozycja - koszty prowadzenia punktu
+          </option>
+        </optgroup>
+        <optgroup label="OP - operator pilotaż">
+          <option value="opc">
+            &nbsp;&nbsp;&nbsp;&nbsp;Koszty prowadzenia punktu
+          </option>
+          <option value="op">
+            &nbsp;&nbsp;&nbsp;&nbsp;Zawarte umowy i końcowe wnioski o płatność
+          </option>
+          <option value="ops">
+            &nbsp;&nbsp;&nbsp;&nbsp;Dyspozycja - operator pilotaż
+          </option>
+        </optgroup>
+        <optgroup label="OPG - operator gmina">
+          <option value="opg">
+            &nbsp;&nbsp;&nbsp;&nbsp;Dyspozycja - zawarte umowy i końcowe wnioski o płatność
+          </option>
+        </optgroup>
+        <optgroup label="Dodatkowe porozumienie dla najbardziej aktywnych gmin">
+          <option value="bonus">
+            &nbsp;&nbsp;&nbsp;&nbsp;Dyspozycja - dodatkowe koszty prowadzenia punktu
+          </option>
+        </optgroup>
+        <optgroup label="Dodatki">
+          <option value="chng">
+            &nbsp;&nbsp;&nbsp;&nbsp;Słowny zapis kwot
+          </option>
+        </optgroup>
+      </select>
+
+      <div class="hidden" id="show">
+        <div id="costsForm">
+          <div class="input-group">
+            <label for="cost1">Koszty osobowe</label>
+            <input type="text" id="cost1" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cost2">Koszty wyposażenia</label>
+            <input type="text" id="cost2" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cost3">Koszty info-edu</label>
+            <input type="text" id="cost3" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cost4">Tablica informacyjna</label>
+            <input type="text" id="cost4" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cost5">Koszty oznakowania</label>
+            <input type="text" id="cost5" placeholder="0,00" />
+          </div>
+        </div>
+
+        <div id="bonusForm" class="hidden">
+          <div class="input-group">
+            <label for="bonus1">Koszty osobowe</label>
+            <input type="text" id="bonus1" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="bonus2">Koszty wyposażenia</label>
+            <input type="text" id="bonus2" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="bonus3">Koszty info-edu</label>
+            <input type="text" id="bonus3" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="bonus4">Tablica informacyjna</label>
+            <input type="text" id="bonus4" placeholder="0,00" />
+          </div>
+        </div>
+
+        <div id="opcForm" class="hidden">
+          <div class="input-group">
+            <label for="opc1">Koszty osobowe</label>
+            <input type="text" id="opc1" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="opc2">Koszty wyposażenia</label>
+            <input type="text" id="opc2" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="opc3">Koszty info-edu</label>
+            <input type="text" id="opc3" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="opc4">Tablica informacyjna</label>
+            <input type="text" id="opc4" placeholder="0,00" />
+          </div>
+        </div>
+
+        <div id="certificatesForm" class="hidden">
+          <div class="input-group">
+            <label for="cert1">Poziom podstawowy</label>
+            <input type="text" id="cert1" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cert2">Poziom podwyższony</label>
+            <input type="text" id="cert2" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cert2a">Same WoD</label>
+            <input type="text" id="cert2a" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cert3">Zaświadczenia</label>
+            <input type="text" id="cert3" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cert4">Ścieżka bankowa</label>
+            <input type="text" id="cert4" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="cert5">Końcowe WoP</label>
+            <input type="text" id="cert5" placeholder="0,00" />
+          </div>
+        </div>
+
+        <div id="opForm" class="hidden">
+          <div class="input-group">
+            <label for="op1">Etap I - zawarte umowy</label>
+            <input type="text" id="op1" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="op2">Etap II - WoP końcowe</label>
+            <input type="text" id="op2" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="op3">Etap II - WoP końcowe kompleksowa termo</label>
+            <input type="text" id="op3" placeholder="0,00" />
+          </div>
+        </div>
+
+        <div id="opgForm" class="hidden">
+          <div class="input-group">
+            <label for="opg1">Etap I - zawarte umowy</label>
+            <input type="text" id="opg1" placeholder="0,00" />
+          </div>
+          <div class="input-group">
+            <label for="opg2">Etap II - WoP końcowe</label>
+            <input type="text" id="opg2" placeholder="0,00" />
+          </div>
+        </div>
+
+        <div id="opsForm" class="hidden">
+          <!-- Sekcja podsumowania będzie generowana dynamicznie -->
+        </div>
+
+        <div id="changeForm">
+          <div class="input-group">
+            <label for="change1">Podaj kwotę lub sumę</label>
+            <input type="text" id="change1" placeholder="0,00" />
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="calculateBtn" class="hidden">
+            Zatwierdź
+            <span class="boldtext">&nbsp;&nbsp;&nbsp;&nbsp;&crarr;</span>
+          </button>
+          <button id="clearBtn" class="hidden quarterly-delete-btn">
+            Wyczyść wszystko<span>&nbsp;&nbsp;&nbsp;&nbsp;X</span>
+          </button>
+        </div>
+        <div id="check-box">
+          <input type="checkbox" id="sumaWKom" name="sumaWKom" />
+          <label for="sumaWKom">Sumuj wartości w komórkach</label>
+        </div>
+        <div class="radio-group hidden" id="certificatesRadioGroup">
+          <div class="radio-option hidden">
+            <input
+              type="radio"
+              id="amountRadio"
+              name="certType"
+              value="amount"
+              checked
+            />
+            <label for="amountRadio" id="kwota" class="hidden"
+              >W polach podane są kwoty</label
+            >
+          </div>
+          <div class="radio-option hidden">
+            <input
+              type="radio"
+              id="quantityRadio"
+              name="certType"
+              value="quantity"
+            />
+            <label for="quantityRadio" id="liczba" class="hidden"
+              >W polach podane są liczby</label
+            >
+          </div>
+        </div>
+
+        <div id="result" class="result">
+          <div id="sumValue" class="sum-value"></div>
+          <div id="sumText" class="text-value"></div>
+          <div class="copy-buttons">
+            <button id="copyNumberBtn">Kopiuj liczbę</button>
+            <button id="copyTextBtn" class="hidden">Kopiuj zapis słowny</button>
+            <button id="addCosts">
+              Dodaj kwartał
+              <span class="boldtext">&nbsp;&nbsp;&nbsp;&nbsp;&darr;</span>
+            </button>
+            <button id="copyToSheetBtn">Kopiuj do arkusza</button>
+          </div>
+          <div
+            id="quarterlySumsContainer"
+            class="quarterly-sums-container"
+          ></div>
+          <div class="total-sum-buttons">
+            <button id="copyTotalSumBtn">Kopiuj łączną sumę</button>
+            <button id="copyTotalSumTextBtn">
+              Kopiuj zapis słowny łącznej sumy
+            </button>
+          </div>
+          <div class="total-sum-display">
+            <span id="total-sum-label" class="total-sum-label"></span>
+            <span class="total-sum-amount" id="totalSumDisplay"></span>
+            <div id="totalSumTextDisplay" class="total-sum-text"></div>
+          </div>
+        </div>
+        <div class="switches">
+          <button id="switchToOPC" class="hidden switch">
+            Przejdź do kosztów punktu OP
+          </button>
+          <button id="switchToOP" class="hidden switch">
+            Przejdź do wniosków OP
+          </button>
+          <button id="switchToOPS" class="hidden switch">
+            Przejdź do podsumowania OP
+          </button>
+        </div>
+      </div>
+    </div>
+    <script>
+
+      let quarterCounter = 1;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const show = document.getElementById("show");
+        const formType = document.getElementById("formType");
+        const costsForm = document.getElementById("costsForm");
+        const certificatesForm = document.getElementById("certificatesForm");
+        const calculateBtn = document.getElementById("calculateBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const resultDiv = document.getElementById("result");
+        const sumValue = document.getElementById("sumValue");
+        const sumText = document.getElementById("sumText");
+        const copyNumberBtn = document.getElementById("copyNumberBtn");
+        const copyToSheetBtn = document.getElementById("copyToSheetBtn");
+        const copyTextBtn = document.getElementById("copyTextBtn");
+        const checkb = document.getElementById("check-box");
+        const quantityRadio = document.getElementById("quantityRadio");
+        const amountRadio = document.getElementById("amountRadio");
+        const roundRadio = document.getElementById("certificatesRadioGroup");
+        const liczba = document.getElementById("liczba");
+        const kwota = document.getElementById("kwota");
+        const opForm = document.getElementById("opForm");
+        const opcForm = document.getElementById("opcForm");
+        const opgForm = document.getElementById("opgForm");
+        const opsForm = document.getElementById("opsForm");
+        const bonusForm = document.getElementById("bonusForm");
+        const changeForm = document.getElementById("changeForm");
+        const title = document.getElementById("title");
+        const titlePKI = document.getElementById("titlePKI");
+        const titleOP = document.getElementById("titleOP");
+        const titleOPG = document.getElementById("titleOPG");
+        const titleBonus = document.getElementById("titleBonus");
+        const radioFields = document.querySelectorAll(
+          'input[type="radio"][name="certType"]'
+        );
+        const sumaWKom = document.getElementById("sumaWKom");
+        const switchToOPC = document.getElementById("switchToOPC");
+        const switchToOP = document.getElementById("switchToOP");
+        const switchToOPS = document.getElementById("switchToOPS");
+        const change = document.getElementById("change");
+        const addCostsBtn = document.getElementById("addCosts");
+        const quarterlySumsContainer = document.getElementById(
+          "quarterlySumsContainer"
+        );
+        const copyTotalSumBtn = document.getElementById("copyTotalSumBtn");
+        const copyTotalSumTextBtn = document.getElementById(
+          "copyTotalSumTextBtn"
+        );
+        const totalSumButtons = document.querySelector(".total-sum-buttons");
+        const totalSumDisplay = document.getElementById("totalSumDisplay");
+        const totalSumLabel = document.getElementById("total-sum-label");
+        const totalSumTextDisp = document.getElementById("totalSumTextDisplay");
+
+        // Obsługa zmiany formularza i nagłówka
+        formType.addEventListener("change", function () {
+          if (this.value === "costs") {
+            costsForm.classList.remove("hidden");
+            checkb.classList.remove("hidden");
+            certificatesForm.classList.add("hidden");
+            quantityRadio.classList.add("hidden");
+            amountRadio.classList.add("hidden");
+            roundRadio.classList.add("hidden");
+            kwota.classList.add("hidden");
+            liczba.classList.add("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.add("hidden");
+            opcForm.classList.add("hidden");
+            opgForm.classList.add("hidden");
+            opsForm.classList.add("hidden");
+            changeForm.classList.add("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.remove("hidden");
+            titleOP.classList.add("hidden");
+            titleOPG.classList.add("hidden");
+            titleBonus.classList.add("hidden");
+            calculateBtn.classList.remove("hidden");
+            calculateBtn.classList.remove("zamien");
+            clearBtn.classList.remove("hidden");
+            copyTextBtn.classList.remove("hidden");
+            copyToSheetBtn.classList.remove("hidden");
+            switchToOP.classList.add("hidden");
+            switchToOPS.classList.add("hidden");
+            switchToOPC.classList.add("hidden");
+            change.classList.add("hidden");
+            bonusForm.classList.add("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            addCostsBtn.classList.remove("hidden");
+            totalSumTextDisp.classList.add("hidden");
+          } else if (this.value === "opc") {
+            costsForm.classList.add("hidden");
+            checkb.classList.remove("hidden");
+            certificatesForm.classList.add("hidden");
+            quantityRadio.classList.add("hidden");
+            amountRadio.classList.add("hidden");
+            roundRadio.classList.add("hidden");
+            kwota.classList.add("hidden");
+            liczba.classList.add("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.add("hidden");
+            opcForm.classList.remove("hidden");
+            opgForm.classList.add("hidden");
+            opsForm.classList.add("hidden");
+            changeForm.classList.add("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.add("hidden");
+            titleOP.classList.remove("hidden");
+            titleOPG.classList.add("hidden");
+            titleBonus.classList.add("hidden");
+            calculateBtn.classList.remove("hidden");
+            calculateBtn.classList.remove("zamien");
+            clearBtn.classList.remove("hidden");
+            copyTextBtn.classList.add("hidden");
+            switchToOP.classList.remove("hidden");
+            switchToOPS.classList.remove("hidden");
+            switchToOPC.classList.add("hidden");
+            change.classList.add("hidden");
+            copyToSheetBtn.classList.remove("hidden");
+            bonusForm.classList.add("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            totalSumTextDisp.classList.add("hidden");
+            addCostsBtn.classList.add("hidden");
+          } else if (this.value === "certificates") {
+            costsForm.classList.add("hidden");
+            checkb.classList.add("hidden");
+            certificatesForm.classList.remove("hidden");
+            quantityRadio.classList.remove("hidden");
+            amountRadio.classList.remove("hidden");
+            roundRadio.classList.remove("hidden");
+            kwota.classList.remove("hidden");
+            liczba.classList.remove("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.add("hidden");
+            opcForm.classList.add("hidden");
+            opgForm.classList.add("hidden");
+            opsForm.classList.add("hidden");
+            changeForm.classList.add("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.remove("hidden");
+            titleOP.classList.add("hidden");
+            titleOPG.classList.add("hidden");
+            titleBonus.classList.add("hidden");
+            calculateBtn.classList.remove("hidden");
+            calculateBtn.classList.remove("zamien");
+            clearBtn.classList.remove("hidden");
+            copyTextBtn.classList.remove("hidden");
+            switchToOP.classList.add("hidden");
+            switchToOPS.classList.add("hidden");
+            switchToOPC.classList.add("hidden");
+            change.classList.add("hidden");
+            copyToSheetBtn.classList.remove("hidden");
+            bonusForm.classList.add("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            totalSumTextDisp.classList.add("hidden");
+            addCostsBtn.classList.remove("hidden");
+          } else if (this.value === "op") {
+            costsForm.classList.add("hidden");
+            checkb.classList.add("hidden");
+            certificatesForm.classList.add("hidden");
+            quantityRadio.classList.remove("hidden");
+            amountRadio.classList.remove("hidden");
+            roundRadio.classList.remove("hidden");
+            kwota.classList.remove("hidden");
+            liczba.classList.remove("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.remove("hidden");
+            opcForm.classList.add("hidden");
+            opgForm.classList.add("hidden");
+            opsForm.classList.add("hidden");
+            changeForm.classList.add("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.add("hidden");
+            titleOP.classList.remove("hidden");
+            titleOPG.classList.add("hidden");
+            calculateBtn.classList.remove("hidden");
+            calculateBtn.classList.remove("zamien");
+            clearBtn.classList.remove("hidden");
+            copyTextBtn.classList.add("hidden");
+            switchToOPC.classList.remove("hidden");
+            switchToOPS.classList.remove("hidden");
+            switchToOP.classList.add("hidden");
+            change.classList.add("hidden");
+            copyToSheetBtn.classList.remove("hidden");
+            bonusForm.classList.add("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            totalSumTextDisp.classList.add("hidden");
+            addCostsBtn.classList.add("hidden");
+          } else if (this.value === "opg") {
+            costsForm.classList.add("hidden");
+            checkb.classList.add("hidden");
+            certificatesForm.classList.add("hidden");
+            quantityRadio.classList.remove("hidden");
+            amountRadio.classList.remove("hidden");
+            roundRadio.classList.remove("hidden");
+            kwota.classList.remove("hidden");
+            liczba.classList.remove("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.add("hidden");
+            opcForm.classList.add("hidden");
+            opgForm.classList.remove("hidden");
+            opsForm.classList.add("hidden");
+            changeForm.classList.add("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.add("hidden");
+            titleOP.classList.add("hidden");
+            titleOPG.classList.remove("hidden");
+            titleBonus.classList.add("hidden");
+            calculateBtn.classList.remove("hidden");
+            calculateBtn.classList.remove("zamien");
+            clearBtn.classList.remove("hidden");
+            copyTextBtn.classList.remove("hidden");
+            switchToOP.classList.add("hidden");
+            switchToOPS.classList.add("hidden");
+            switchToOPC.classList.add("hidden");
+            change.classList.add("hidden");
+            copyToSheetBtn.classList.remove("hidden");
+            bonusForm.classList.add("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            totalSumTextDisp.classList.add("hidden");
+          } else if (this.value === "bonus") {
+            costsForm.classList.add("hidden");
+            checkb.classList.remove("hidden");
+            certificatesForm.classList.add("hidden");
+            quantityRadio.classList.add("hidden");
+            amountRadio.classList.add("hidden");
+            roundRadio.classList.add("hidden");
+            kwota.classList.add("hidden");
+            liczba.classList.add("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.add("hidden");
+            opcForm.classList.add("hidden");
+            opgForm.classList.add("hidden");
+            opsForm.classList.add("hidden");
+            changeForm.classList.add("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.add("hidden");
+            titleOP.classList.add("hidden");
+            titleOPG.classList.add("hidden");
+            titleBonus.classList.remove("hidden");
+            calculateBtn.classList.remove("hidden");
+            calculateBtn.classList.remove("zamien");
+            clearBtn.classList.remove("hidden");
+            copyTextBtn.classList.remove("hidden");
+            copyToSheetBtn.classList.remove("hidden");
+            switchToOP.classList.add("hidden");
+            switchToOPS.classList.add("hidden");
+            switchToOPC.classList.add("hidden");
+            change.classList.add("hidden");
+            bonusForm.classList.remove("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            totalSumTextDisp.classList.add("hidden");
+            addCostsBtn.classList.add("hidden");
+          } else if (this.value === "ops") {
+            costsForm.classList.add("hidden");
+            checkb.classList.add("hidden");
+            certificatesForm.classList.add("hidden");
+            quantityRadio.classList.add("hidden");
+            amountRadio.classList.add("hidden");
+            roundRadio.classList.add("hidden");
+            kwota.classList.add("hidden");
+            liczba.classList.add("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.add("hidden");
+            opcForm.classList.add("hidden");
+            opgForm.classList.add("hidden");
+            opsForm.classList.remove("hidden");
+            changeForm.classList.add("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.add("hidden");
+            titleOP.classList.remove("hidden");
+            titleOPG.classList.add("hidden");
+            titleBonus.classList.add("hidden");
+            calculateBtn.classList.add("hidden");
+            calculateBtn.classList.add("zamien");
+            clearBtn.classList.add("hidden");
+            copyTextBtn.classList.remove("hidden");
+            switchToOP.classList.remove("hidden");
+            switchToOPS.classList.add("hidden");
+            switchToOPC.classList.remove("hidden");
+            change.classList.add("hidden");
+            copyToSheetBtn.classList.add("hidden");
+            bonusForm.classList.add("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            totalSumTextDisp.classList.add("hidden");
+            addCostsBtn.classList.remove("hidden");
+            // Generowanie podsumowania dla ops
+            generateOpsSummary();
+          } else if (this.value === "chng") {
+            costsForm.classList.add("hidden");
+            checkb.classList.add("hidden");
+            certificatesForm.classList.add("hidden");
+            quantityRadio.classList.add("hidden");
+            amountRadio.classList.add("hidden");
+            roundRadio.classList.add("hidden");
+            kwota.classList.add("hidden");
+            liczba.classList.add("hidden");
+            show.classList.remove("hidden");
+            opForm.classList.add("hidden");
+            opcForm.classList.add("hidden");
+            opgForm.classList.add("hidden");
+            opsForm.classList.add("hidden");
+            changeForm.classList.remove("hidden");
+            title.classList.add("hidden");
+            titlePKI.classList.add("hidden");
+            titleOP.classList.add("hidden");
+            titleOPG.classList.add("hidden");
+            titleBonus.classList.add("hidden");
+            calculateBtn.classList.remove("hidden");
+            calculateBtn.classList.add("zamien");
+            clearBtn.classList.remove("hidden");
+            copyTextBtn.classList.remove("hidden");
+            copyToSheetBtn.classList.add("hidden");
+            switchToOP.classList.add("hidden");
+            switchToOPS.classList.add("hidden");
+            switchToOPC.classList.add("hidden");
+            change.classList.remove("hidden");
+            copyToSheetBtn.classList.add("hidden");
+            bonusForm.classList.add("hidden");
+            totalSumDisplay.classList.add("hidden");
+            totalSumLabel.classList.add("hidden");
+            totalSumTextDisp.classList.add("hidden");
+            addCostsBtn.classList.add("hidden");
+          }
+
+          resultDiv.style.display = "none";
+          clearInputErrors();
+        });
+
+        // Funkcja generująca podsumowanie dla ops
+        function generateOpsSummary() {
+          // Oblicz sumę kosztów punktu
+          let opcTotal = 0;
+          const opcInputs = ["opc1", "opc2", "opc3", "opc4"];
+          for (const inputId of opcInputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+            if (value) {
+              const sum = sumMultipleValuesAndUpdateInput(input);
+              if (!isNaN(sum)) {
+                opcTotal += sum;
+              }
+            }
+          }
+
+          // Oblicz sumę kosztów wniosków
+          let opTotal = 0;
+          const opInputs = ["op1", "op2", "op3"];
+          for (const inputId of opInputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+            if (value) {
+              let num = parseFloat(value.replace(/,/g, ".")) || 0;
+              if (quantityRadio.checked) {
+                switch (inputId) {
+                  case "op1":
+                    num *= 200;
+                    break;
+                  case "op2":
+                    num *= 500;
+                    break;
+                  case "op3":
+                    num *= 1500;
+                    break;
+                }
+              }
+              opTotal += num;
+            }
+          }
+
+          // Oblicz całkowitą sumę
+          const total = opcTotal + opTotal;
+
+          // Aktualizuj tylko wartości, nie cały HTML
+          const opsForm = document.getElementById("opsForm");
+          if (!opsForm.querySelector(".ops-summary")) {
+            // Tylko jeśli nie istnieje, stwórz strukturę
+            opsForm.innerHTML = `
+            <div class="ops-summary">
+                <div class="ops-summary-item">
+                    <span class="ops-summary-label">Suma kosztów prowadzenia punktu:</span>
+                    <span class="ops-summary-value" id="opcTotalValue">${formatNumber(
+                      opcTotal
+                    )} zł</span>
+                </div>
+                <div class="ops-summary-item">
+                    <span class="ops-summary-label">Suma kosztów za zawarte umowy i przekazane wnioski:</span>
+                    <span class="ops-summary-value" id="opTotalValue">${formatNumber(
+                      opTotal
+                    )} zł</span>
+                </div>
+                <div class="ops-descript">Łączna kwota do przekazania</div>
+                <div class="ops-total" id="opsTotalValue">${formatNumber(
+                  total
+                )}</div>
+                <div class="ops-text" id="opsTotalText">${numberToWords(
+                  total
+                )}</div>
+                <div class="ops-buttons">
+                    <button id="opsCopySumBtn">Kopiuj sumę</button>
+                    <button id="opsCopyTextBtn">Kopiuj zapis słowny</button>
+                </div>
+            </div>
+        `;
+
+            // Dodaj event listeners do przycisków
+            document
+              .getElementById("opsCopySumBtn")
+              .addEventListener("click", function () {
+                navigator.clipboard.writeText(
+                  formatNumber(total).replace(/\./g, ",")
+                );
+              });
+
+            document
+              .getElementById("opsCopyTextBtn")
+              .addEventListener("click", function () {
+                navigator.clipboard.writeText(numberToWords(total));
+              });
+          } else {
+            // Jeśli struktura już istnieje, tylko zaktualizuj wartości
+            document.getElementById(
+              "opcTotalValue"
+            ).textContent = `${formatNumber(opcTotal)} zł`;
+            document.getElementById(
+              "opTotalValue"
+            ).textContent = `${formatNumber(opTotal)} zł`;
+            document.getElementById("opsTotalValue").textContent =
+              formatNumber(total);
+            document.getElementById("opsTotalText").textContent =
+              numberToWords(total);
+          }
+        }
+
+        // zmiana placeholdera w zależności od podawania kwoty lub liczby
+        radioFields.forEach((radio) => {
+          radio.addEventListener("change", function () {
+            if (this.checked) {
+              switch (this.id) {
+                case "amountRadio":
+                  cert1.placeholder = "0,00";
+                  cert2.placeholder = "0,00";
+                  cert2a.placeholder = "0,00";
+                  cert3.placeholder = "0,00";
+                  cert4.placeholder = "0,00";
+                  cert5.placeholder = "0,00";
+                  op1.placeholder = "0,00";
+                  op2.placeholder = "0,00";
+                  op3.placeholder = "0,00";
+                  opg1.placeholder = "0,00";
+                  opg2.placeholder = "0,00";
+                  break;
+
+                case "quantityRadio":
+                  cert1.placeholder = "0";
+                  cert2.placeholder = "0";
+                  cert2a.placeholder = "0";
+                  cert3.placeholder = "0";
+                  cert4.placeholder = "0";
+                  cert5.placeholder = "0";
+                  op1.placeholder = "0";
+                  op2.placeholder = "0";
+                  op3.placeholder = "0";
+                  opg1.placeholder = "0";
+                  opg2.placeholder = "0";
+                  break;
+
+                default:
+                  cert1.placeholder = "0,00";
+                  cert2.placeholder = "0,00";
+                  cert2a.placeholder = "0,00";
+                  cert3.placeholder = "0,00";
+                  cert4.placeholder = "0,00";
+                  cert5.placeholder = "0,00";
+                  op1.placeholder = "0,00";
+                  op2.placeholder = "0,00";
+                  op3.placeholder = "0,00";
+                  opg1.placeholder = "0,00";
+                  opg2.placeholder = "0,00";
+                  break;
+              }
+            }
+          });
+        });
+
+        // Funkcja czyszcząca błędy w inputach
+        function clearInputErrors() {
+          const inputs = document.querySelectorAll("input");
+          inputs.forEach((input) => {
+            input.classList.remove("input-error");
+          });
+        }
+
+        // Funkcja sprawdzająca poprawność liczby dla kosztów
+        function isValidCostNumber(value) {
+          if (!value) return true; // Puste pole jest OK - wartość brana do obliczeń to domyślnie 0,00
+
+          // Sprawdzenie czy wartość zawiera tylko cyfry, przecinki, kropki i znaki "+" - liczby float można zapisywać z przecinkiem lub z kropką" 0.00 === 0,00
+          const regex = /^(\d+([,.]\d{0,2})?)(\+\d+([,.]\d{0,2})?)*$/;
+          if (!regex.test(value)) return false;
+
+          // Sprawdzenie poszczególnych części
+          const parts = value.replace(/,/g, ".").split("+");
+          for (const part of parts) {
+            if (part === "") continue;
+            const num = parseFloat(part);
+            if (isNaN(num)) return false;
+
+            // Sprawdzenie czy liczba ma maksymalnie 2 miejsca po przecinku - kwota nie może być z większą dokładnością (to nie giełda)
+            const decimalPart = part.split(".")[1];
+            if (decimalPart && decimalPart.length > 2) return false;
+          }
+
+          return true;
+        }
+
+        // Funkcja sprawdzająca poprawność liczby dla wniosków - liczba wniosków musi być nieujemna i całkowita
+        function isValidCertificateNumber(value) {
+          if (!value) return true; // Puste pole jest OK - wartość brana do obliczeń to domyślnie 0
+
+          // Sprawdzenie czy wartość zawiera tylko cyfry - weryfikacja missclicków
+          const regex = /^\d+$/;
+          if (!regex.test(value)) return false;
+
+          return true;
+        }
+
+        // Funkcja sumująca wartości z wielu liczb w jednym polu i aktualizująca input
+
+        function sumMultipleValuesAndUpdateInput(input) {
+          const value = input.value.trim();
+          if (!value) return 0;
+
+          try {
+            // Zamiana przecinków na kropki i usuwanie białych znaków
+            const cleanedValue = value.replace(/,/g, ".").replace(/\s+/g, "");
+            // Podział na części i suma - krok niezbędny do realizacji kopiowania do arkusza
+            const parts = cleanedValue.split("+").filter((part) => part !== "");
+            if (parts.length === 0) return 0;
+
+            const sum = parts.reduce((acc, part) => {
+              const num = parseFloat(part);
+              if (isNaN(num)) throw new Error("Invalid number");
+              return acc + num;
+            }, 0);
+            if (sumaWKom.checked) {
+              // Aktualizacja wartości w polu input jeśli były dodawania
+              if (parts.length > 1) {
+                input.value = formatNumber(sum);
+              }
+            }
+
+            return sum;
+          } catch (e) {
+            return NaN;
+          }
+        }
+
+        // Funkcja formatująca liczbę do 2 miejsc po przecinku
+        function formatNumber(num) {
+          return num.toFixed(2).replace(".", ",");
+        }
+
+        // Funkcja sprawdzająca czy liczba jest podzielna przez 25 - w zasadzie funkcja nieużywana, wstępnie weryfikowała poprawność kwot za wnioski i zaświadczenia (kwota % 25 === 0)
+        function isDivisibleBy25(num) {
+          return num % 25 === 0;
+        }
+
+        // Funkcja sprawdzająca czy liczba jest podzielna przez wartość - fukcja zastępująca function isDivisibleBy25(num)
+        function isDivisibleBy(num, divisor) {
+          return num % divisor === 0;
+        }
+
+        // Funkcja czyszcząca formularz
+        function clearForm() {
+    const inputs = document.querySelectorAll('input[type="text"]');
+    inputs.forEach((input) => {
+        input.value = "";
+        input.classList.remove("input-error");
+    });
+    resultDiv.style.display = "none";
+    quarterlySumsContainer.innerHTML = "";
+    totalSumButtons.style.display = "none";
+    totalSumLabel.style.display = "none";
+    totalSumDisplay.style.display = "none";
+    totalSumTextDisp.style.display = "none";
+    sumValue.style.display = "block";
+    sumText.style.display = "block";
+    copyNumberBtn.style.display = "block";
+    copyTextBtn.style.display = "block";
+    quarterCounter = 1; // Resetuj licznik kwartałów
+
+    // Jeśli aktualnie wyświetlane jest podsumowanie ops, zaktualizuj je
+    if (formType.value === "ops") {
+        generateOpsSummary();
+    }
+}
+
+        // Funkcja konwertująca liczbę na zapis słowny
+
+        function numberToWords(num) {
+          const units = [
+            "",
+            "jeden",
+            "dwa",
+            "trzy",
+            "cztery",
+            "pięć",
+            "sześć",
+            "siedem",
+            "osiem",
+            "dziewięć",
+          ];
+          const teens = [
+            "dziesięć",
+            "jedenaście",
+            "dwanaście",
+            "trzynaście",
+            "czternaście",
+            "piętnaście",
+            "szesnaście",
+            "siedemnaście",
+            "osiemnaście",
+            "dziewiętnaście",
+          ];
+          const tens = [
+            "",
+            "dziesięć",
+            "dwadzieścia",
+            "trzydzieści",
+            "czterdzieści",
+            "pięćdziesiąt",
+            "sześćdziesiąt",
+            "siedemdziesiąt",
+            "osiemdziesiąt",
+            "dziewięćdziesiąt",
+          ];
+          const hundreds = [
+            "",
+            "sto",
+            "dwieście",
+            "trzysta",
+            "czterysta",
+            "pięćset",
+            "sześćset",
+            "siedemset",
+            "osiemset",
+            "dziewięćset",
+          ];
+
+          if (num === 0) return "zero 00/100";
+
+          let words = [];
+          const integerPart = Math.floor(num);
+          const fractionalPart = Math.round((num - integerPart) * 100);
+
+          // Formatowanie liczby poniżej 1000
+          function formatBelow1000(number) {
+            if (number === 0) return "";
+
+            let parts = [];
+            const hundredsCount = Math.floor(number / 100);
+            const tensCount = Math.floor((number % 100) / 10);
+            const unitsCount = number % 10;
+
+            if (hundredsCount > 0) {
+              parts.push(hundreds[hundredsCount]);
+            }
+
+            if (tensCount === 1) {
+              parts.push(teens[unitsCount]);
+            } else {
+              if (tensCount > 0) {
+                parts.push(tens[tensCount]);
+              }
+              if (unitsCount > 0) {
+                parts.push(units[unitsCount]);
+              }
+            }
+
+            return parts.join(" ");
+          }
+
+          // Funkcja pomocnicza do odmiany tysięcy
+          function getThousandForm(number) {
+            if (number === 1) return "tysiąc";
+
+            const lastTwo = number % 100;
+            const lastDigit = number % 10;
+
+            if (lastTwo >= 12 && lastTwo <= 14) {
+              return "tysięcy";
+            }
+
+            if (lastDigit >= 2 && lastDigit <= 4) {
+              return "tysiące";
+            }
+
+            return "tysięcy";
+          }
+
+          // Miliony
+          if (integerPart >= 1000000) {
+            const millionsPart = Math.floor(integerPart / 1000000);
+            const remaining = integerPart % 1000000;
+
+            if (millionsPart === 1) {
+              words.push("jeden milion");
+            } else if (millionsPart < 10) {
+              words.push(formatBelow1000(millionsPart) + " miliony");
+            } else if (millionsPart < 20) {
+              words.push(teens[millionsPart - 10] + " milionów");
+            } else {
+              const tensCount = Math.floor(millionsPart / 10);
+              const unitsCount = millionsPart % 10;
+              if (unitsCount === 0) {
+                words.push(tens[tensCount] + " milionów");
+              } else {
+                words.push(
+                  tens[tensCount] + " " + units[unitsCount] + " milionów"
+                );
+              }
+            }
+
+            num = remaining;
+          }
+
+          // Tysiące
+          if (integerPart >= 1000) {
+            const thousandsPart = Math.floor(integerPart / 1000);
+            const remaining = integerPart % 1000;
+
+            if (thousandsPart === 1) {
+              words.push("jeden tysiąc");
+            } else {
+              const thousandsInWords = formatBelow1000(thousandsPart);
+              if (thousandsInWords) {
+                words.push(
+                  thousandsInWords + " " + getThousandForm(thousandsPart)
+                );
+              }
+            }
+
+            if (remaining > 0) {
+              const remainingInWords = formatBelow1000(remaining);
+              if (remainingInWords) {
+                words.push(remainingInWords);
+              }
+            }
+          } else if (integerPart > 0) {
+            // Liczby poniżej 1000
+            words.push(formatBelow1000(integerPart));
+          } else if (integerPart === 0 && words.length === 0) {
+            words.push("zero");
+          }
+
+          // Dodanie części ułamkowej
+          const fractionalStr = fractionalPart.toString().padStart(2, "0");
+          words.push(fractionalStr + "/100");
+
+          return words.join(" ").replace(/\s+/g, " ").trim();
+        }
+
+        // Funkcja obliczająca sumę dla formularza kosztów
+        function calculateCosts() {
+          let total = 0;
+          let hasError = false;
+
+
+          const inputs = ["cost1", "cost2", "cost3", "cost4", "cost5"];
+
+          // Sprawdzenie poprawności wszystkich pól
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!isValidCostNumber(value)) {
+              input.classList.add("input-error");
+              hasError = true;
+            } else {
+              input.classList.remove("input-error");
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowadzone wartości</span>';
+            sumText.textContent = "";
+            resultDiv.style.display = "block";
+            return false;
+          }
+
+          // Obliczenie sumy
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const sum = sumMultipleValuesAndUpdateInput(input);
+
+            if (isNaN(sum)) {
+              hasError = true;
+              break;
+            }
+            total += sum;
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowadzone wartości</span>';
+            sumText.textContent = "";
+          } else {
+            const formattedTotal = formatNumber(total);
+            sumValue.textContent = formattedTotal;
+            sumText.textContent = numberToWords(total);
+          }
+
+          resultDiv.style.display = "block";
+
+          return !hasError;
+        }
+
+        // Funkcja obliczająca sumę dla formularza kosztów
+        function calculateBonus() {
+          let total = 0;
+          let hasError = false;
+
+          const inputs = ["bonus1", "bonus2", "bonus3", "bonus4"];
+
+          // Sprawdzenie poprawności wszystkich pól
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!isValidCostNumber(value)) {
+              input.classList.add("input-error");
+              hasError = true;
+            } else {
+              input.classList.remove("input-error");
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowadzone wartości</span>';
+            sumText.textContent = "";
+            resultDiv.style.display = "block";
+            return false;
+          }
+
+          // Obliczenie sumy
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const sum = sumMultipleValuesAndUpdateInput(input);
+
+            if (isNaN(sum)) {
+              hasError = true;
+              break;
+            }
+            total += sum;
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowadzone wartości</span>';
+            sumText.textContent = "";
+          } else {
+            const formattedTotal = formatNumber(total);
+            sumValue.textContent = formattedTotal;
+            sumText.textContent = numberToWords(total);
+          }
+
+          resultDiv.style.display = "block";
+
+          return !hasError;
+        }
+
+        function calculateChng() {
+          let total = 0;
+          let hasError = false;
+
+          const inputs = ["change1"];
+
+          // Sprawdzenie poprawności wszystkich pól
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!isValidCostNumber(value)) {
+              input.classList.add("input-error");
+              hasError = true;
+            } else {
+              input.classList.remove("input-error");
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowadzone wartości</span>';
+            sumText.textContent = "";
+            resultDiv.style.display = "block";
+            return false;
+          }
+
+          // Obliczenie sumy
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const sum = sumMultipleValuesAndUpdateInput(input);
+
+            if (isNaN(sum)) {
+              hasError = true;
+              break;
+            }
+            total += sum;
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowadzone wartości</span>';
+            sumText.textContent = "";
+          } else {
+            const formattedTotal = formatNumber(total);
+            sumValue.textContent = formattedTotal;
+            sumText.textContent = numberToWords(total);
+          }
+
+          resultDiv.style.display = "block";
+
+          return !hasError;
+        }
+
+        // Obliczanie summy kosztów punktu dla operatora OP
+        function calculateOPC() {
+          let total = 0;
+          let hasError = false;
+
+          const inputs = ["opc1", "opc2", "opc3", "opc4"];
+
+          // Sprawdzenie poprawności wszystkich pól
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!isValidCostNumber(value)) {
+              input.classList.add("input-error");
+              hasError = true;
+            } else {
+              input.classList.remove("input-error");
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowaddzone wartości</span>';
+            sumText.textContent = "";
+            resultDiv.style.display = "block";
+            return false;
+          }
+
+          // Obliczenie sumy
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const sum = sumMultipleValuesAndUpdateInput(input);
+
+            if (isNaN(sum)) {
+              hasError = true;
+              break;
+            }
+            total += sum;
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Sprawdź wprowadzone wartości</span>';
+            sumText.textContent = "";
+          } else {
+            const formattedTotal = formatNumber(total);
+            sumValue.textContent = formattedTotal;
+            sumText.textContent = numberToWords(total);
+          }
+
+          resultDiv.style.display = "block";
+
+          return !hasError;
+        }
+
+        // Funkcja obliczająca sumę dla formularza wniosków
+        function calculateCertificates() {
+          let total = 0;
+          let hasError = false;
+
+          const inputs = [
+            "cert1",
+            "cert2",
+            "cert2a",
+            "cert3",
+            "cert4",
+            "cert5",
+          ];
+
+          // Sprawdzenie poprawności wszystkich pól
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!isValidCertificateNumber(value)) {
+              input.classList.add("input-error");
+              hasError = true;
+            } else {
+              input.classList.remove("input-error");
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Wprowadzone kwoty zawierają błąd</span>';
+            sumText.textContent = "";
+            resultDiv.style.display = "block";
+            return false;
+          }
+
+          // Obliczenie sumy i sprawdzenie odpowiednich warunków
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (value) {
+              let num = parseInt(value, 10);
+              if (isNaN(num)) {
+                hasError = true;
+                break;
+              }
+
+              // Jeśli wybrano "Podaję liczbę wniosków", pomnóż przez odpowiednią kwotę
+              if (quantityRadio.checked) {
+                switch (inputId) {
+                  case "cert1":
+                    num *= 50;
+                    break;
+                  case "cert2":
+                    num *= 150;
+                    break;
+                  case "cert2a":
+                    num *= 75;
+                    break;
+                  case "cert3":
+                    num *= 75;
+                    break;
+                  case "cert4":
+                    num *= 25;
+                    break;
+                  case "cert5":
+                    num *= 150;
+                    break;
+                }
+              } else {
+                // Jeśli wybrano "Podaję kwoty", sprawdź odpowiednie warunki
+                switch (inputId) {
+                  case "cert1":
+                    if (!isDivisibleBy(num, 50) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "cert2":
+                    if (!isDivisibleBy(num, 150) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "cert2a":
+                    if (!isDivisibleBy(num, 75) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "cert3":
+                    if (!isDivisibleBy(num, 75) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "cert4":
+                    if (!isDivisibleBy(num, 25) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "cert5":
+                    if (!isDivisibleBy(num, 150) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                }
+              }
+
+              if (hasError) break;
+
+              total += num;
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Wprowadzone kwoty zawierają błąd</span>';
+            sumText.textContent = "";
+          } else {
+            sumValue.textContent = formatNumber(total);
+            sumText.textContent = numberToWords(total);
+          }
+
+          resultDiv.style.display = "block";
+
+          return !hasError;
+        }
+
+        // Funkcja obliczająca sumę dla formularza OP
+        function calculateOP() {
+          let total = 0;
+          let hasError = false;
+
+          const inputs = ["op1", "op2", "op3"];
+
+          // Sprawdzenie poprawności wszystkich pól
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!isValidCertificateNumber(value)) {
+              input.classList.add("input-error");
+              hasError = true;
+            } else {
+              input.classList.remove("input-error");
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Wprowadzone wartości zawierają błąd</span>';
+            sumText.textContent = "";
+            resultDiv.style.display = "block";
+            return false;
+          }
+
+          // Obliczenie sumy i sprawdzenie odpowiednich warunków
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (value) {
+              let num = parseInt(value, 10);
+              if (isNaN(num)) {
+                hasError = true;
+                break;
+              }
+
+              // Jeśli wybrano "Podaję liczbę wniosków", pomnóż przez odpowiednią kwotę
+              if (quantityRadio.checked) {
+                switch (inputId) {
+                  case "op1":
+                    num *= 200;
+                    break;
+                  case "op2":
+                    num *= 500;
+                    break;
+                  case "op3":
+                    num *= 1500;
+                    break;
+                }
+              } else {
+                // Jeśli wybrano "Podaję kwoty", sprawdź odpowiednie warunki
+                switch (inputId) {
+                  case "op1":
+                    if (!isDivisibleBy(num, 200) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "op2":
+                    if (!isDivisibleBy(num, 500) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "op3":
+                    if (!isDivisibleBy(num, 1500) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                }
+              }
+
+              if (hasError) break;
+
+              total += num;
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Wprowadzone kwoty zawierają błąd</span>';
+            sumText.textContent = "";
+          } else {
+            sumValue.textContent = formatNumber(total);
+            sumText.textContent = numberToWords(total);
+          }
+
+          resultDiv.style.display = "block";
+
+          return !hasError;
+        }
+
+        // Funkcja obliczająca sumę dla formularza OPG
+        function calculateOPG() {
+          let total = 0;
+          let hasError = false;
+
+          const inputs = ["opg1", "opg2"];
+
+          // Sprawdzenie poprawności wszystkich pól
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!isValidCertificateNumber(value)) {
+              input.classList.add("input-error");
+              hasError = true;
+            } else {
+              input.classList.remove("input-error");
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Wprowadzone wartości zawierają błąd</span>';
+            sumText.textContent = "";
+            resultDiv.style.display = "block";
+            return false;
+          }
+
+          // Obliczenie sumy i sprawdzenie odpowiednich warunków
+          for (const inputId of inputs) {
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (value) {
+              let num = parseInt(value, 10);
+              if (isNaN(num)) {
+                hasError = true;
+                break;
+              }
+
+              // Jeśli wybrano "Podaję liczbę wniosków", pomnóż przez odpowiednią kwotę
+              if (quantityRadio.checked) {
+                switch (inputId) {
+                  case "opg1":
+                    num *= 200;
+                    break;
+                  case "opg2":
+                    num *= 1500;
+                    break;
+                }
+              } else {
+                // Jeśli wybrano "Podaję kwoty", sprawdź odpowiednie warunki
+                switch (inputId) {
+                  case "opg1":
+                    if (!isDivisibleBy(num, 200) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                  case "opg2":
+                    if (!isDivisibleBy(num, 1500) && num !== 0) {
+                      input.classList.add("input-error");
+                      hasError = true;
+                    }
+                    break;
+                }
+              }
+
+              if (hasError) break;
+
+              total += num;
+            }
+          }
+
+          if (hasError) {
+            sumValue.innerHTML =
+              '<span class="error">Wprowadzone kwoty zawierają błąd</span>';
+            sumText.textContent = "";
+          } else {
+            sumValue.textContent = formatNumber(total);
+            sumText.textContent = numberToWords(total);
+          }
+
+          resultDiv.style.display = "block";
+
+          return !hasError;
+        }
+
+        // Obsługa przycisku Suma
+        calculateBtn.addEventListener("click", function () {
+          if (formType.value === "costs") {
+            calculateCosts();
+          } else if (formType.value === "certificates") {
+            calculateCertificates();
+          } else if (formType.value === "op") {
+            calculateOP();
+          } else if (formType.value === "opc") {
+            calculateOPC();
+          } else if (formType.value === "opg") {
+            calculateOPG();
+          } else if (formType.value === "chng") {
+            calculateChng();
+          } else if (formType.value === "bonus") {
+            calculateBonus();
+          }
+		sumValue.style.display = "block";
+		sumText.style.display = "block";
+    //addCostBtn.style.display = "block";
+		
+        });
+
+        // Obsługa przycisku Dodaj kwartał
+        addCostsBtn.addEventListener("click", function () {
+    const inputs = document.querySelectorAll('input[type="text"]');
+    inputs.forEach((input) => {
+        input.value = "";
+        sumValue.style.display = "none";
+        sumText.style.display = "none";
+        //addCostBtn.style.display = "none";
+    });
+
+    // Only add if there's a valid sum displayed
+    const currentSum = sumValue.textContent;
+    if (
+        currentSum &&
+        !currentSum.includes("error") &&
+        resultDiv.style.display === "block"
+    ) {
+        // Hide the sum display and copy buttons
+        copyNumberBtn.style.display = "none";
+        copyTextBtn.style.display = "none";
+
+        // Create new quarterly sum item
+        const sumItem = document.createElement("div");
+        sumItem.className = "quarterly-sum-item";
+
+        // Add quarter label
+        const quarterLabel = document.createElement("span");
+        quarterLabel.className = "quarterly-label";
+        quarterLabel.textContent = `${quarterCounter}.`;
+        quarterCounter++; // Inkrementuj licznik
+
+        // Add sum value
+        const sumValueElement = document.createElement("span");
+        sumValueElement.className = "quarterly-sum-value";
+        sumValueElement.textContent = currentSum;
+
+        // Add buttons container
+        const buttonsContainer = document.createElement("div");
+        buttonsContainer.className = "quarterly-buttons";
+
+        // Add copy button
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "quarterly-copy-btn";
+        copyBtn.textContent = "Kopiuj";
+        copyBtn.addEventListener("click", function () {
+            navigator.clipboard.writeText(currentSum.replace(/\./g, ","));
+        });
+
+        // Add delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "quarterly-delete-btn";
+        deleteBtn.textContent = "Usuń";
+        deleteBtn.addEventListener("click", function () {
+            sumItem.remove();
+            updateTotalSumDisplay();
+            // If no items left, show the original sum and buttons
+            if (quarterlySumsContainer.children.length === 0) {
+                sumValue.style.display = "block";
+                sumText.style.display = "block";
+                copyNumberBtn.style.display = "block";
+                copyTextBtn.style.display = "block";
+                totalSumButtons.style.display = "none";
+                totalSumTextDisp.style.display = "none";
+                totalSumDisplay.style.display = "none";
+                quarterCounter = 1; // Resetuj licznik gdy nie ma już kwartałów
+            }
+        });
+
+        // Append buttons to container
+        buttonsContainer.appendChild(copyBtn);
+        buttonsContainer.appendChild(deleteBtn);
+
+        // Append elements
+        sumItem.appendChild(quarterLabel);
+        sumItem.appendChild(sumValueElement);
+        sumItem.appendChild(buttonsContainer);
+        quarterlySumsContainer.appendChild(sumItem);
+
+        // Show total sum buttons
+        totalSumButtons.style.display = "flex";
+        totalSumLabel.style.display = "inline-block";
+
+        totalSumDisplay.style.display = "inline-block";
+        totalSumTextDisp.style.display = "block";
+
+        // Update total sum display
+        updateTotalSumDisplay();
+    }
+});
+
+        function updateTotalSumDisplay() {
+          const quarterlySumItems = quarterlySumsContainer.querySelectorAll(
+        ".quarterly-sum-item"
+    );
+    let totalSum = 0;
+
+    quarterlySumItems.forEach((item) => {
+        const valueText = item.querySelector(
+            ".quarterly-sum-value"
+        ).textContent;
+        const value = parseFloat(valueText.replace(",", "."));
+        if (!isNaN(value)) {
+            totalSum += value;
+        }
+    });
+
+    totalSumDisplay.textContent = formatNumber(totalSum);
+    totalSumTextDisp.textContent = numberToWords(totalSum);
+}
+
+        // Obsługa przycisku Kopiuj łączną sumę
+        copyTotalSumBtn.addEventListener("click", function () {
+          const quarterlySumItems = quarterlySumsContainer.querySelectorAll(
+            ".quarterly-sum-item"
+          );
+          let totalSum = 0;
+
+          quarterlySumItems.forEach((item) => {
+            const valueText = item.querySelector(
+              ".quarterly-sum-value"
+            ).textContent;
+            const value = parseFloat(valueText.replace(",", "."));
+            if (!isNaN(value)) {
+              totalSum += value;
+            }
+          });
+
+          if (quarterlySumItems.length > 0) {
+            navigator.clipboard.writeText(
+              formatNumber(totalSum).replace(/\./g, ",")
+            );
+          }
+        });
+
+        // Obsługa przycisku Zapis słowny łącznej sumy
+        copyTotalSumTextBtn.addEventListener("click", function () {
+          const quarterlySumItems = quarterlySumsContainer.querySelectorAll(
+            ".quarterly-sum-item"
+          );
+          let totalSum = 0;
+
+          quarterlySumItems.forEach((item) => {
+            const valueText = item.querySelector(
+              ".quarterly-sum-value"
+            ).textContent;
+            const value = parseFloat(valueText.replace(",", "."));
+            if (!isNaN(value)) {
+              totalSum += value;
+            }
+          });
+
+          if (quarterlySumItems.length > 0) {
+            navigator.clipboard.writeText(numberToWords(totalSum));
+          }
+        });
+
+        // Obsługa przycisku Przejdź do kosztów punktu OP
+        switchToOPC.addEventListener("click", function () {
+          formType.value = "opc";
+          formType.dispatchEvent(new Event("change"));
+        });
+
+        // Obsługa przycisku Przejdź do wniosków OP
+        switchToOP.addEventListener("click", function () {
+          formType.value = "op";
+          formType.dispatchEvent(new Event("change"));
+        });
+
+        // Obsługa przycisku Przejdź do podsumowania OP
+        switchToOPS.addEventListener("click", function () {
+          formType.value = "ops";
+          formType.dispatchEvent(new Event("change"));
+        });
+
+        // Obsługa przycisku Wyczyść
+        clearBtn.addEventListener("click", clearForm);
+
+        // Obsługa przycisku Kopiuj liczbę
+        copyNumberBtn.addEventListener("click", function () {
+          const text = sumValue.textContent;
+          if (text && !text.includes("error")) {
+            navigator.clipboard.writeText(text.replace(/\./g, ","));
+          }
+        });
+
+        // Obsługa przycisku Kopiuje do arkusza
+        copyToSheetBtn.addEventListener("click", function () {
+          if (formType.value === "costs") {
+            // Dla kosztów - kopiuje wszystkie wartości oddzielone tabulatorami
+            const values = [];
+            const inputs = ["cost1", "cost2", "cost3", "cost4", "cost5"];
+
+            for (const inputId of inputs) {
+              const input = document.getElementById(inputId);
+              let value = input.value.trim();
+
+              if (value) {
+                // Jeśli wartość zawiera +, oblicza sumę
+                if (value.includes("+")) {
+                  value = sumMultipleValuesAndUpdateInput(input) || 0;
+                  values.push(formatNumber(value));
+                } else {
+                  // Formatuje pojedynczą wartość
+                  const num = parseFloat(value.replace(/,/g, "."));
+                  values.push(isNaN(num) ? "0,00" : formatNumber(num));
+                }
+              } else {
+                values.push("0,00");
+              }
+            }
+
+            navigator.clipboard.writeText(values.join("\t"));
+          } else if (formType.value === "opc") {
+            // Dla kosztów - kopiuje wszystkie wartości oddzielone tabulatorami
+            const values = [];
+            const inputs = ["opc1", "opc2", "opc3", "opc4"];
+
+            for (const inputId of inputs) {
+              const input = document.getElementById(inputId);
+              let value = input.value.trim();
+
+              if (value) {
+                // Jeśli wartość zawiera +, oblicza sumę
+                if (value.includes("+")) {
+                  value = sumMultipleValuesAndUpdateInput(input) || 0;
+                  values.push(formatNumber(value));
+                } else {
+                  // Formatuje pojedynczą wartość
+                  const num = parseFloat(value.replace(/,/g, "."));
+                  values.push(isNaN(num) ? "0,00" : formatNumber(num));
+                }
+              } else {
+                values.push("0,00");
+              }
+            }
+
+            navigator.clipboard.writeText(values.join("\t"));
+          } else if (formType.value === "op") {
+            // Dla wniosków - specjalna kolejność (zgodnie z wykorzystywanym arkuszem)
+            const op1 = document.getElementById("op1").value || "0";
+            const op2 = document.getElementById("op2").value || "0";
+            const op3 = document.getElementById("op3").value || "0";
+
+            // Jeśli wybrano "Podaję liczbę wniosków", pomnóż przez odpowiednie kwoty
+            let op1Value = parseInt(op1) || 0;
+            let op2Value = parseInt(op2) || 0;
+            let op3Value = parseInt(op3) || 0;
+
+            if (quantityRadio.checked) {
+              op1Value *= 200;
+              op2Value *= 500;
+              op3Value *= 1500;
+            }
+
+            const text = [op1Value, op2Value, op3Value].join("\t");
+
+            navigator.clipboard.writeText(text);
+          } else if (formType.value === "opg") {
+            // Dla wniosków - specjalna kolejność (zgodnie z wykorzystywanym arkuszem)
+            const opg1 = document.getElementById("opg1").value || "0";
+            const opg2 = document.getElementById("opg2").value || "0";
+
+            // Jeśli wybrano "Podaję liczbę wniosków", pomnóż przez odpowiednie kwoty
+            let opg1Value = parseInt(opg1) || 0;
+            let opg2Value = parseInt(opg2) || 0;
+
+            if (quantityRadio.checked) {
+              opg1Value *= 200;
+              opg2Value *= 1500;
+            }
+
+            const text = [opg1Value, opg2Value].join("\t");
+
+            navigator.clipboard.writeText(text);
+          } else {
+            // Dla wniosków - specjalna kolejność (zgodnie z wykorzystywanym arkuszem)
+            const cert1 = document.getElementById("cert1").value || "0";
+            const cert2 = document.getElementById("cert2").value || "0";
+            const cert2a = document.getElementById("cert2a").value || "0";
+            const cert3 = document.getElementById("cert3").value || "0";
+            const cert4 = document.getElementById("cert4").value || "0";
+            const cert5 = document.getElementById("cert5").value || "0";
+
+            // Jeśli wybrano "Podaję liczbę wniosków", pomnóż przez odpowiednie kwoty
+            let cert1Value = parseInt(cert1) || 0;
+            let cert2Value = parseInt(cert2) || 0;
+            let cert2aValue = parseInt(cert2a) || 0;
+            let cert3Value = parseInt(cert3) || 0;
+            let cert4Value = parseInt(cert4) || 0;
+            let cert5Value = parseInt(cert5) || 0;
+
+            if (quantityRadio.checked) {
+              cert1Value *= 50;
+              cert2Value *= 150;
+              cert2aValue *= 75;
+              cert3Value *= 75;
+              cert4Value *= 25;
+              cert5Value *= 150;
+            }
+
+            const text = [
+              cert2Value,
+              cert2aValue,
+              cert3Value,
+              cert1Value,
+              cert5Value,
+              cert4Value,
+            ].join("\t");
+
+            navigator.clipboard.writeText(text);
+          }
+        });
+
+        // Obsługa przycisku Kopiuj zapis słowny
+        copyTextBtn.addEventListener("click", function () {
+          const text = sumText.textContent;
+          if (text) {
+            navigator.clipboard.writeText(text);
+          }
+        });
+
+        // Obsługa klawiszy Enter i Esc
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            calculateBtn.click();
+          } else if (e.key === "Escape") {
+            clearBtn.click();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
